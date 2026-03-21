@@ -1,0 +1,86 @@
+pipeline {
+    agent any
+
+    options {
+        timestamps()
+        timeout(time: 30, unit: 'MINUTES')
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
+    stages {
+
+        stage('Setup Environment') {
+            steps {
+                echo '=== [Setup] Python virtual environment ==='
+                sh '''
+                    cd "$WORKSPACE"
+                    python3 -m venv .venv
+                    . .venv/bin/activate
+                    pip install --upgrade pip
+                    pip install -r requirements.txt
+                '''
+            }
+        }
+
+        stage('Collect Data') {
+            steps {
+                echo '=== [Stage 1] Downloading Titanic CSV from GitHub ==='
+                sh '''
+                    cd "$WORKSPACE"
+                    . .venv/bin/activate
+                    python3 1_collect_data.py
+                '''
+            }
+        }
+
+        stage('Prepare Dataset') {
+            steps {
+                echo '=== [Stage 2] Feature engineering & train/test split ==='
+                sh '''
+                    cd "$WORKSPACE"
+                    . .venv/bin/activate
+                    python3 2_prepare_dataset.py
+                '''
+            }
+        }
+
+        stage('Train Model') {
+            steps {
+                echo '=== [Stage 3] Training GradientBoosting model ==='
+                sh '''
+                    cd "$WORKSPACE"
+                    . .venv/bin/activate
+                    python3 3_train_model.py
+                '''
+            }
+        }
+
+        stage('Evaluate Model') {
+            steps {
+                echo '=== [Stage 4] Evaluating model on test set ==='
+                sh '''
+                    cd "$WORKSPACE"
+                    . .venv/bin/activate
+                    python3 4_evaluate_model.py
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            echo '=== [Post] Archiving artifacts ==='
+            archiveArtifacts(
+                artifacts: 'model/model.pkl, model/evaluation_report.json',
+                allowEmptyArchive: true
+            )
+        }
+        success {
+            echo '✅ Pipeline completed successfully!'
+        }
+        failure {
+            echo '❌ Pipeline FAILED — check console output above.'
+        }
+    }
+}
