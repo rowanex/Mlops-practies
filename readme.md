@@ -17,7 +17,7 @@ Details
 
 Успешный билд в Jenkins
 
-![[{F93A212C-3D37-44D3-A157-CD62A04B9783}.png]]
+<img width="2467" height="923" alt="{F93A212C-3D37-44D3-A157-CD62A04B9783}" src="https://github.com/user-attachments/assets/5c2d758d-af15-4a80-b004-382167f05c46" />
 
 Итоговые метрики точности:
 
