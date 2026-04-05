@@ -1,0 +1,10 @@
+services:
+  iris-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: iris-api:local
+    container_name: iris-api-container
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
