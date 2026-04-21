@@ -1,0 +1,22 @@
+stages:
+  process:
+    cmd: python fill_na.py
+    deps:
+    - data/titanic.csv
+    - fill_na.py
+    - process_data.py
+    outs:
+    - data/titanic_processed.csv
+  download:
+    cmd: python dowload_data.py\
+    deps:
+    - dowload_data.py
+    outs:
+    - data/titanic.csv
+  encode:
+    cmd: python one_hot.py
+    deps:
+    - data/titanic_processed.csv
+    - one_hot.py
+    outs:
+    - data/titanic_final.csv
